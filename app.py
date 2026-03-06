@@ -2,13 +2,14 @@ import os
 import logging
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, session
+
 from authlib.integrations.flask_client import OAuth
 
 app = Flask(__name__)
 
 # --- CONFIGURATION ---
 # Uses Render Environment Variables for security
-app.secret_key = os.environ.get("FLASK_SECRET", "dev_key_123")
+app.secret_key = os.environ.get("FLASK_SECRET", "syandan_mvp_2026")
 DATA_DIR = 'data'
 
 # --- LOGGING SETUP (For your Mac Analytics) ---
