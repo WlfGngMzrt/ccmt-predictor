@@ -1,0 +1,25 @@
+{% if results %}
+    <table>
+        <thead>
+            <tr>
+                <th>Institute</th>
+                <th>Specialization</th>
+                <th>Min Score</th>
+                <th>Max Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in results %}
+            <tr{% if row.is_core %} style="background-color: #e3f2fd; font-weight: bold;"{% endif %}>
+                <td>{{ row['Institute'] }}</td>
+                <td>
+                    {{ row['PG Program'] }} 
+                    {% if row.is_core %}<span style="color: #1976d2;">★ Core</span>{% endif %}
+                </td>
+                <td>{{ row['Min GATE Score'] }}</td>
+                <td>{{ row['Max GATE Score'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
