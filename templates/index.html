@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CCMT Precision Counselor 2026</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600&display=swap" rel="stylesheet">
+    
     <style>
         body { font-family: 'SF Pro Display', -apple-system, sans-serif; letter-spacing: -0.01em; }
         .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-        .result-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .result-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        .result-card { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .result-card:hover { transform: scale(1.01); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); }
+        select, input { appearance: none; -webkit-appearance: none; }
     </style>
 </head>
 <body class="bg-[#F5F5F7] text-[#1D1D1F] min-h-screen">
@@ -19,33 +22,157 @@
     <nav class="sticky top-0 z-50 glass-card border-b border-gray-200/50 px-6 py-4">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <h1 class="text-xl font-semibold tracking-tight">CCMT Counselor <span class="text-indigo-600">2026</span></h1>
-            <div class="text-xs font-medium px-3 py-1 bg-gray-100 rounded-full text-gray-500 uppercase tracking-widest">Static Mode</div>
+            <div class="flex gap-4">
+                <span class="text-[10px] font-bold px-2 py-1 bg-green-100 text-green-700 rounded-md uppercase tracking-wider">Live & Static</span>
+            </div>
         </div>
     </nav>
 
     <main class="max-w-3xl mx-auto px-6 py-12">
         <div class="text-center mb-12">
-            <h2 class="text-4xl font-semibold mb-3 tracking-tight">Find your perfect fit.</h2>
-            <p class="text-xl text-gray-500">Based on verified 2025/2024 cutoffs.</p>
+            <h2 class="text-5xl font-semibold mb-4 tracking-tight text-[#1D1D1F]">Your future, sorted.</h2>
+            <p class="text-xl text-gray-500">Precision mapping for M.Tech specializations.</p>
         </div>
 
         <div class="glass-card p-8 rounded-[2.5rem] border border-gray-200 shadow-sm mb-12">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-semibold mb-2 ml-1">GATE Score</label>
+                    <label class="block text-sm font-semibold mb-2 ml-1 text-gray-600">GATE Score</label>
                     <input type="number" id="gate_score" placeholder="e.g. 550" 
-                        class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                        class="w-full p-4 bg-gray-50/50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder-gray-400">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-2 ml-1">Data Year</label>
-                    <select id="year" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none">
-                        <option value="2025">2025 (Latest)</option>
-                        <option value="2024">2024</option>
+                    <label class="block text-sm font-semibold mb-2 ml-1 text-gray-600">Data Year</label>
+                    <select id="year" class="w-full p-4 bg-gray-50/50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="2025">2025 Cutoffs (Latest)</option>
+                        <option value="2024">2024 Cutoffs</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-2 ml-1">Category</label>
-                    <select id="category" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none">
+                    <label class="block text-sm font-semibold mb-2 ml-1 text-gray-600">Category</label>
+                    <select id="category" class="w-full p-4 bg-gray-50/50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="OPEN">General (OPEN)</option>
                         <option value="OBC-NCL">OBC-NCL</option>
-                        <option
+                        <option value="EWS">General-EWS</option>
+                        <option value="SC">SC</option>
+                        <option value="ST">ST</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button onclick="handlePredict()" id="predictBtn"
+                        class="w-full p-4 bg-[#1D1D1F] hover:bg-black text-white font-semibold rounded-2xl shadow-xl transition-all active:scale-95">
+                        Predict Matches
+                    </button>
+                </div>
+            </div>
+            
+            <button onclick="shareToWhatsApp()" class="mt-6 w-full flex items-center justify-center gap-2 text-sm font-semibold text-green-600 hover:text-green-700 transition-colors">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.067 2.877 1.215 3.076.149.198 2.095 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Share tool with batchmates
+            </button>
+        </div>
+
+        <div id="results-loading" class="hidden text-center py-20">
+            <div class="animate-spin inline-block w-10 h-10 border-[3px] border-indigo-500 border-t-transparent rounded-full mb-4"></div>
+            <p class="text-gray-400 font-medium">Scanning CCMT database...</p>
+        </div>
+
+        <div id="results-container" class="space-y-4">
+            </div>
+    </main>
+
+    <script>
+        // Mapping Logic: Ties PG Program names to nice tags
+        function getSpecData(prog) {
+            const p = prog.toLowerCase();
+            if (p.includes('vlsi') && p.includes('embedded')) return { name: "VLSI & Embedded", bg: "bg-indigo-100", text: "text-indigo-700" };
+            if (p.includes('vlsi')) return { name: "VLSI Design", bg: "bg-blue-100", text: "text-blue-700" };
+            if (p.includes('embedded')) return { name: "Embedded Systems", bg: "bg-sky-100", text: "text-sky-700" };
+            if (p.includes('artificial') || p.includes(' ai ')) return { name: "AI & ML", bg: "bg-purple-100", text: "text-purple-700" };
+            if (p.includes('data science')) return { name: "Data Science", bg: "bg-violet-100", text: "text-violet-700" };
+            if (p.includes('communication')) return { name: "Communication", bg: "bg-emerald-100", text: "text-emerald-700" };
+            return { name: "Specialized", bg: "bg-gray-100", text: "text-gray-600" };
+        }
+
+        async function handlePredict() {
+            const scoreInput = document.getElementById('gate_score').value;
+            const year = document.getElementById('year').value;
+            const category = document.getElementById('category').value;
+            const container = document.getElementById('results-container');
+            const loading = document.getElementById('results-loading');
+
+            if (!scoreInput) { alert("Please enter your GATE score."); return; }
+            const userScore = parseInt(scoreInput);
+
+            loading.classList.remove('hidden');
+            container.innerHTML = '';
+
+            // GitHub Pages path to your CSVs
+            const csvPath = `data/${year}.csv`;
+
+            Papa.parse(csvPath, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    loading.classList.add('hidden');
+                    
+                    // Filter based on Score and Category
+                    const filtered = results.data.filter(row => {
+                        const cutoff = parseInt(row['Min GATE Score']);
+                        return row['Category'] === category && cutoff <= userScore;
+                    });
+
+                    // Sort: Ambitious (Highest Cutoff) First
+                    filtered.sort((a, b) => parseInt(b['Min GATE Score']) - parseInt(a['Min GATE Score']));
+
+                    if (filtered.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center py-20 bg-white rounded-[2.5rem] border border-dashed border-gray-300">
+                                <p class="text-gray-400 text-lg">No matches found for ${userScore}. Try 2024 data or change category.</p>
+                            </div>`;
+                        return;
+                    }
+
+                    container.innerHTML = filtered.map(row => {
+                        const spec = getSpecData(row['PG Program']);
+                        const diff = userScore - parseInt(row['Min GATE Score']);
+                        
+                        let chance = "Borderline"; 
+                        let cBadge = "bg-red-50 text-red-600";
+                        if (diff >= 50) { chance = "Very High"; cBadge = "bg-green-50 text-green-600"; }
+                        else if (diff >= 20) { chance = "High"; cBadge = "bg-emerald-50 text-emerald-600"; }
+                        else if (diff >= 5) { chance = "Moderate"; cBadge = "bg-amber-50 text-amber-600"; }
+
+                        return `
+                        <div class="result-card bg-white p-7 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div class="flex-1">
+                                <div class="flex flex-wrap items-center gap-2 mb-3">
+                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${spec.bg} ${spec.text}">${spec.name}</span>
+                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${cBadge}">${chance} Chance</span>
+                                </div>
+                                <h3 class="text-xl font-semibold text-[#1D1D1F] leading-snug">${row['Institute']}</h3>
+                                <p class="text-sm text-gray-500 mt-1">${row['PG Program']}</p>
+                            </div>
+                            <div class="md:text-right flex md:flex-col items-center md:items-end justify-between border-t md:border-t-0 pt-4 md:pt-0 border-gray-50">
+                                <span class="text-[10px] text-gray-400 uppercase font-bold tracking-widest md:mb-1">Required Cutoff</span>
+                                <span class="text-3xl font-bold text-indigo-600">${row['Min GATE Score']}</span>
+                            </div>
+                        </div>`;
+                    }).join('');
+                },
+                error: function() {
+                    loading.classList.add('hidden');
+                    alert("Data file not found. Ensure your CSV is in the 'data' folder.");
+                }
+            });
+        }
+
+        function shareToWhatsApp() {
+            const url = window.location.href;
+            const text = encodeURIComponent("Found my M.Tech matches on this CCMT Predictor! Check your chance here: " + url);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+    </script>
+</body>
+</html>
