@@ -1,0 +1,5 @@
+Flask
+Pandas
+Authlib
+requests
+gunicorn
