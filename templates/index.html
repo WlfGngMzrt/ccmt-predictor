@@ -3,102 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CCMT Smart Predictor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>CCMT Predictor Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --glass: rgba(255, 255, 255, 0.95); }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #1e293b; padding: 20px; margin:0; }
-        .container { max-width: 1200px; margin: 40px auto; }
+        :root { --apple-blue: #0071e3; --text: #1d1d1f; --bg: #f5f5f7; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0c0c0e; color: white; margin: 0; padding: 40px 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
         
-        .glass-card { 
-            background: var(--glass); backdrop-filter: blur(12px);
-            border-radius: 24px; padding: 35px; border: 1px solid #e2e8f0;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); margin-bottom: 30px;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(25px);
+            border-radius: 24px; padding: 35px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 40px;
         }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
-        label { font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: block; }
-        input, select, button { padding: 14px; border-radius: 12px; border: 2px solid #e2e8f0; width: 100%; font-family: inherit; transition: 0.2s; }
-        input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
-        button { background: var(--primary); color: white; font-weight: 700; border: none; cursor: pointer; margin-top: 10px; }
-        button:hover { background: #1d4ed8; transform: translateY(-1px); }
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 25px; 
+            align-items: end;
+        }
+
+        .input-group label { display: block; font-size: 0.7rem; font-weight: 800; color: #a1a1a6; margin-bottom: 8px; text-transform: uppercase; }
+        select, input { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 12px; font-size: 0.95rem; width: 100%; box-sizing: border-box; }
+        button { background: var(--apple-blue); color: white; border: none; border-radius: 12px; padding: 14px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #0077ed; transform: translateY(-2px); }
+
+        .table-container { background: white; border-radius: 24px; overflow: hidden; margin-top: 20px; color: var(--text); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #fbfbfd; padding: 18px; text-align: left; font-size: 0.7rem; color: #86868b; text-transform: uppercase; border-bottom: 1px solid #d2d2d7; }
         
-        .table-wrap { overflow-x: auto; background: white; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { background: #f8fafc; padding: 18px 20px; font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; }
-        td { padding: 18px 20px; border-bottom: 1px solid #f1f5f9; font-size: 0.92rem; vertical-align: top; }
-        
-        .domain-tag { display: inline-block; padding: 5px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: 800; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; margin-top: 6px; }
-        .core-active { background: #eff6ff; color: #1d4ed8; border-color: #dbeafe; }
-        .chance-pill { color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
-        .score-val { font-weight: 800; color: var(--primary); font-size: 1.15rem; }
-        
-        .search-container { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; padding: 0 5px; }
-        .search-bar { width: 350px; border-radius: 14px; padding: 10px 18px; border: 1px solid #cbd5e1; }
+        td { padding: 18px; border-bottom: 1px solid #f5f5f7; font-size: 0.9rem; line-height: 1.5; }
+        .tag { padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; display: inline-block; margin-top: 8px; }
+        .chance-badge { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+        .dot { height: 10px; width: 10px; border-radius: 50%; }
+
+        .search-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .live-search { width: 300px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 30px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div style="text-align: center; margin-bottom: 40px;">
-        <h1 style="margin: 0; font-size: 2.2rem; font-weight: 800; letter-spacing: -1.5px; background: linear-gradient(90deg, #1e3a8a, #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CCMT Counselor v2.0</h1>
-        <p style="color: #64748b; font-weight: 500;">Tailored Recommendations for Engineers</p>
-    </div>
+    <h1 style="text-align:center; font-weight:800; font-size:2.5rem; margin-bottom:40px;">M.Tech College Predictor</h1>
 
     <div class="glass-card">
         <form method="POST">
             <div class="form-grid">
-                <div><label>Your Branch</label><select name="qualifying_branch">
-                    <option value="ECE" {{'selected' if selected_branch == 'ECE'}}>ECE / ETC</option>
-                    <option value="CSE" {{'selected' if selected_branch == 'CSE'}}>CSE / IT</option>
-                    <option value="EE" {{'selected' if selected_branch == 'EE'}}>Electrical (EE)</option>
-                    <option value="IN" {{'selected' if selected_branch == 'IN'}}>Instrumentation (IN)</option>
-                    <option value="ME" {{'selected' if selected_branch == 'ME'}}>Mechanical (ME)</option>
-                    <option value="CE" {{'selected' if selected_branch == 'CE'}}>Civil (CE)</option>
-                    <option value="ALL" {{'selected' if selected_branch == 'ALL'}}>All Branches</option>
-                </select></div>
-                <div><label>GATE Score</label><input type="number" name="gate_score" value="{{user_score if user_score else ''}}" required></div>
-                <div><label>Category</label><select name="category">
-                    {% for cat in ['OPEN', 'OBC-NCL', 'EWS', 'SC', 'ST'] %}
-                    <option value="{{cat}}" {{'selected' if category == cat}}>{{cat}}</option>
-                    {% endfor %}
-                </select></div>
-                <div><label>Data Year</label><select name="year">{% for y in years %}<option value="{{y}}" {{'selected' if y == selected_year}}>{{y}}</option>{% endfor %}</select></div>
-                <div style="display:flex; align-items:flex-end;"><button type="submit">Predict Colleges</button></div>
+                <div class="input-group">
+                    <label>Qualifying Branch</label>
+                    <select name="qualifying_branch" id="branchSelect" onchange="updateSpecs()">
+                        {% for b in ['ECE', 'CSE', 'EE', 'IN', 'ME', 'CE', 'ALL'] %}
+                        <option value="{{b}}" {{'selected' if selected_branch==b}}>{{b}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Interest Field</label>
+                    <select name="specialization" id="specSelect"></select>
+                </div>
+                <div class="input-group">
+                    <label>GATE Score</label>
+                    <input type="number" name="gate_score" value="{{user_score}}" required>
+                </div>
+                <div class="input-group">
+                    <label>Category</label>
+                    <select name="category">
+                        {% for cat in ['OPEN', 'OBC-NCL', 'EWS', 'SC', 'ST'] %}
+                        <option value="{{cat}}" {{'selected' if category==cat}}>{{cat}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Year</label>
+                    <select name="year">{% for y in years %}<option value="{{y}}">{{y}}</option>{% endfor %}</select>
+                </div>
+                <button type="submit">Predict Colleges</button>
             </div>
         </form>
     </div>
 
     {% if results %}
-    <div class="search-container">
-        <h2 style="font-size: 1.1rem; color: #475569;">{{ results|length }} Matching Programs Found</h2>
-        <input type="text" id="searchInput" class="search-bar" placeholder="Search NIT or Specialization..." onkeyup="searchTable()">
+    <div class="search-row">
+        <h3>{{ results|length }} Options Matching Your Profile</h3>
+        <input type="text" id="liveSearch" class="live-search" placeholder="Search by name..." onkeyup="doSearch()">
     </div>
 
-    <div class="table-wrap">
-        <table id="targetTable">
+    <div class="table-container">
+        <table id="resultsTable">
             <thead>
                 <tr>
                     <th>Institute</th>
-                    <th>Program & Domain Tag</th>
+                    <th>Program & Specialization</th>
                     <th>Round</th>
-                    <th>Cutoff</th>
+                    <th>Max Score</th>
+                    <th>Min Score</th>
                     <th>Admission Chance</th>
                 </tr>
             </thead>
             <tbody>
                 {% for row in results %}
-                <tr style="{{ 'background: #fdfdfd;' if row.is_core else '' }}">
-                    <td style="font-weight:700; width: 30%; color: #0f172a;">{{ row['Institute'] }}</td>
-                    <td style="width: 35%;">
-                        <div style="font-weight:500;">{{ row['PG Program'] }}</div>
-                        <span class="domain-tag {{ 'core-active' if row.is_core else '' }}">
-                            {{ row['tag'] }}
-                        </span>
+                <tr>
+                    <td><strong>{{ row['Institute'] }}</strong></td>
+                    <td>
+                        <div style="font-weight:600;">{{ row['PG Program'] }}</div>
+                        <span class="tag" style="background: {{row.tag_bg}}; color: {{row.tag_text}}">{{ row.tag }}</span>
                     </td>
-                    <td><span style="font-size:0.8rem; font-weight:600; color:#94a3b8;">{{ row['Round'] }}</span></td>
-                    <td><span class="score-val">{{ row['Min GATE Score'] }}</span></td>
-                    <td><span class="chance-pill" style="background: {{ row.chance_color }}">{{ row.chance }}</span></td>
+                    <td><span style="color: #86868b; font-weight:600;">{{ row['Round'] }}</span></td>
+                    <td>{{ row['Max GATE Score'] }}</td>
+                    <td style="color: var(--apple-blue); font-weight:700;">{{ row['Min GATE Score'] }}</td>
+                    <td>
+                        <div class="chance-badge">
+                            <span class="dot" style="background: {{row.chance_color}}"></span>
+                            {{ row.chance }}
+                        </div>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -108,14 +125,27 @@
 </div>
 
 <script>
-function searchTable() {
-    let input = document.getElementById("searchInput").value.toUpperCase();
-    let tr = document.getElementById("targetTable").getElementsByTagName("tr");
-    for (let i = 1; i < tr.length; i++) {
-        let txtValue = tr[i].textContent || tr[i].innerText;
-        tr[i].style.display = (txtValue.toUpperCase().indexOf(input) > -1) ? "" : "none";
-    }
+const branchData = {{ branch_relevance|tojson }};
+const currentSpec = "{{ selected_spec }}";
+
+function updateSpecs() {
+    const branch = document.getElementById('branchSelect').value;
+    const specDropdown = document.getElementById('specSelect');
+    specDropdown.innerHTML = '<option value="ALL">All Specializations</option>';
+    (branchData[branch] || []).forEach(s => {
+        const opt = new Option(s, s);
+        if(s === currentSpec) opt.selected = true;
+        specDropdown.add(opt);
+    });
 }
+
+function doSearch() {
+    let q = document.getElementById("liveSearch").value.toUpperCase();
+    let rows = document.getElementById("resultsTable").getElementsByTagName("tr");
+    for (let i = 1; i < rows.length; i++) rows[i].style.display = rows[i].innerText.toUpperCase().includes(q) ? "" : "none";
+}
+
+window.onload = updateSpecs;
 </script>
 </body>
 </html>

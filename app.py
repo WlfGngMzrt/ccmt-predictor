@@ -5,40 +5,17 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 DATA_DIR = 'data'
 
-# --- ENHANCED DOMAIN CONFIGURATION ---
-# Format: 'Category Name': {'regex': r'...', 'codes': 'CODE1, CODE2'}
+# --- ENHANCED CONFIGURATION ---
 DOMAIN_CONFIG = {
-    'VLSI & Embedded': {
-        'regex': r'VLSI|Embedded|Microelectron|Microsystem|Integrated Circuit',
-        'codes': 'EC, EE, IN'
-    },
-    'Communications & RF': {
-        'regex': r'Communication|RF|Microwave|Wireless|Signal Processing|Photonics|Optic|Antenna',
-        'codes': 'EC'
-    },
-    'Computer Science & AI': {
-        'regex': r'Computer Science|Information Technology|Artificial Intelligence|Machine Learning|Data Science|Data Analytics|Computing|Security|Software|Cloud|Distributed',
-        'codes': 'CS'
-    },
-    'Instrumentation & Control': {
-        'regex': r'Instrumentation|Process Control|Control and Instrumentation|Sensors|Measurement',
-        'codes': 'IN, EC, EE'
-    },
-    'Electrical & Power': {
-        'regex': r'Power|Control|Electrical|Electric Vehicle|High Voltage|Energy Systems|Drives|Renewable',
-        'codes': 'EE'
-    },
-    'Mechanical & Design': {
-        'regex': r'Thermal|Design|Manufacturing|Robotics|Mechatronics|CAD|CAM|Automobile|Mechanical|Industrial|Fluid|Aerospace|Production',
-        'codes': 'ME'
-    },
-    'Civil & Infrastructure': {
-        'regex': r'Structural|Geotechnical|Environmental|Transportation|Water Resources|Construction|Surveying|Hydraulics|Civil|Infrastructure|Geomatics',
-        'codes': 'CE'
-    }
+    'VLSI & Embedded': {'regex': r'VLSI|Embedded|Microelectron|Microsystem|Integrated Circuit', 'codes': 'EC, EE, IN', 'bg': '#E0E7FF', 'text': '#4338CA'},
+    'Communications & RF': {'regex': r'Communication|RF|Microwave|Wireless|Signal Processing|Photonics|Optic|Antenna', 'codes': 'EC', 'bg': '#D1FAE5', 'text': '#065F46'},
+    'Computer Science & AI': {'regex': r'Computer Science|Information Technology|Artificial Intelligence|Machine Learning|Data Science|Data Analytics|Computing|Security|Software|Cloud|Distributed', 'codes': 'CS', 'bg': '#F3E8FF', 'text': '#6B21A8'},
+    'Instrumentation & Control': {'regex': r'Instrumentation|Process Control|Control and Instrumentation|Sensors|Measurement', 'codes': 'IN, EC, EE', 'bg': '#FEF3C7', 'text': '#92400E'},
+    'Electrical & Power': {'regex': r'Power|Control|Electrical|Electric Vehicle|High Voltage|Energy Systems|Drives|Renewable', 'codes': 'EE', 'bg': '#FFEDD5', 'text': '#9A3412'},
+    'Mechanical & Design': {'regex': r'Thermal|Design|Manufacturing|Robotics|Mechatronics|CAD|CAM|Automobile|Mechanical|Industrial|Fluid|Aerospace|Production', 'codes': 'ME', 'bg': '#FCE7F3', 'text': '#9D174D'},
+    'Civil & Infrastructure': {'regex': r'Structural|Geotechnical|Environmental|Transportation|Water Resources|Construction|Surveying|Hydraulics|Civil|Infrastructure|Geomatics', 'codes': 'CE', 'bg': '#F1F5F9', 'text': '#475569'}
 }
 
-# Mapping: Qualifying Branch -> Which categories they see
 BRANCH_RELEVANCE = {
     'ECE': ['VLSI & Embedded', 'Communications & RF', 'Instrumentation & Control'],
     'CSE': ['Computer Science & AI'],
@@ -55,31 +32,25 @@ def get_available_years():
 
 def calculate_chance(user_score, min_score):
     diff = user_score - min_score
-    if diff >= 50: return "Very High", "#059669"
-    if diff >= 20: return "High", "#10b981"
-    if diff >= 5:  return "Moderate", "#f59e0b"
-    return "Borderline", "#ef4444"
+    if diff >= 50: return "Very High", "#10b981"
+    if diff >= 20: return "High", "#34d399"
+    if diff >= 5:  return "Moderate", "#fbbf24"
+    return "Borderline", "#f87171"
 
 def get_program_info(program_name):
-    # Exclusion for Microwave (matches EC, not VLSI)
     if "Microwave" in program_name:
-        category = "Communications & RF"
-        return f"{category} | {DOMAIN_CONFIG[category]['codes']}", category
-
+        cat = "Communications & RF"
+        return DOMAIN_CONFIG[cat], cat
     for category, info in DOMAIN_CONFIG.items():
         if pd.Series(program_name).str.contains(info['regex'], case=False, na=False).any():
-            return f"{category} | {info['codes']}", category
-            
-    return "Other Specialization", "Other"
+            return info, category
+    return {'bg': '#f3f4f6', 'text': '#374151', 'codes': 'GEN'}, "Other"
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     years = get_available_years()
-    results = None
-    user_score = None
-    selected_year = None
-    selected_cat = "OPEN"
-    selected_branch = "ALL"
+    results, user_score, selected_year = None, None, None
+    selected_cat, selected_branch, selected_spec = "OPEN", "ECE", "ALL"
 
     if request.method == 'POST':
         try:
@@ -87,41 +58,39 @@ def index():
             selected_year = request.form.get('year')
             selected_cat = request.form.get('category')
             selected_branch = request.form.get('qualifying_branch')
+            selected_spec = request.form.get('specialization')
 
-            file_path = os.path.join(DATA_DIR, f"{selected_year}.csv")
-            df = pd.read_csv(file_path)
+            df = pd.read_csv(os.path.join(DATA_DIR, f"{selected_year}.csv"))
             df.columns = [c.strip() for c in df.columns]
             df['Min GATE Score'] = pd.to_numeric(df['Min GATE Score'], errors='coerce')
+            df['Max GATE Score'] = pd.to_numeric(df['Max GATE Score'], errors='coerce')
             df = df.dropna(subset=['Min GATE Score'])
 
             mask = (df['Category'] == selected_cat) & (df['Min GATE Score'] <= user_score)
             filtered_df = df[mask].copy()
 
-            # Process tags and filter by branch relevance
-            relevant_categories = BRANCH_RELEVANCE.get(selected_branch, BRANCH_RELEVANCE['ALL'])
-            
             res_list = []
             for _, row in filtered_df.iterrows():
-                tag_string, category_name = get_program_info(row['PG Program'])
-                
-                # Check if this program belongs to the user's branch pool
-                if category_name in relevant_categories or selected_branch == "ALL":
-                    chance_text, chance_color = calculate_chance(user_score, row['Min GATE Score'])
-                    item = row.to_dict()
-                    item['tag'] = tag_string
-                    item['is_core'] = (category_name in ['VLSI & Embedded', 'Instrumentation & Control'])
-                    item['chance'] = chance_text
-                    item['chance_color'] = chance_color
-                    res_list.append(item)
+                info, cat_name = get_program_info(row['PG Program'])
+                if (cat_name in BRANCH_RELEVANCE.get(selected_branch, [])) or selected_branch == "ALL":
+                    if selected_spec == "ALL" or cat_name == selected_spec:
+                        chance_text, chance_color = calculate_chance(user_score, row['Min GATE Score'])
+                        item = row.to_dict()
+                        item.update({'tag': f"{cat_name} | {info['codes']}", 'tag_bg': info['bg'], 'tag_text': info['text'],
+                                    'chance': chance_text, 'chance_color': chance_color})
+                        res_list.append(item)
+            results = res_list # Sorting removed as requested
+        except Exception as e: print(f"Error: {e}")
 
-            results = sorted(res_list, key=lambda x: x['Min GATE Score'], reverse=True)
-
-        except Exception as e:
-            print(f"Error: {e}")
-
-    return render_template('index.html', years=years, results=results, 
-                           user_score=user_score, category=selected_cat, 
-                           selected_year=selected_year, selected_branch=selected_branch)
+    return render_template('index.html', years=years, results=results, user_score=user_score, 
+                           category=selected_cat, selected_year=selected_year, 
+                           selected_branch=selected_branch, selected_spec=selected_spec, 
+                           branch_relevance=BRANCH_RELEVANCE)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    import sys, subprocess
+    venv_python = os.path.join(os.getcwd(), 'venv', 'bin', 'python3')
+    if sys.executable != venv_python and os.path.exists(venv_python):
+        subprocess.check_call([venv_python, *sys.argv])
+    else:
+        app.run(debug=True, port=5001)
